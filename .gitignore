@@ -1,0 +1,40 @@
+# Data (jangan commit data mentah/besar)
+data/raw/
+data/interim/
+data/processed/
+models/
+reports/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+env/
+.ipynb_checkpoints/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Rahasia
+.env
+config.local.yaml
+
+# Node (hanya untuk generator slide) & pengaturan lokal
+node_modules/
+.claude/
+
+# Gambut tidak dipakai untuk sementara
+data/external/peat/
+
+# Berkas kunci sementara PowerPoint/Word
+~$*
+
+# Bukan kode: presentasi, dokumen, dan perkakas Node untuk slide
+presentasi/
+tutorial/
+package.json
+package-lock.json

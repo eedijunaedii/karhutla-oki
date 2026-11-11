@@ -1,0 +1,68 @@
+# =====================================================================
+# Konfigurasi proyek: Sistem Peringatan Dini Karhutla (Kab. OKI)
+# Semua skrip membaca file ini. Salin ke config.local.yaml untuk
+# override lokal (mis. isi map_key) tanpa mengubah file utama.
+# =====================================================================
+
+project:
+  name: karhutla-ews-oki
+  random_seed: 42
+
+region:
+  name: "Kabupaten Ogan Komering Ilir"
+  # Bounding box PERKIRAAN (lon/lat). Verifikasi dengan batas administrasi
+  # resmi (shapefile BPS/Indonesia-GeoJSON) bila ingin presisi.
+  lon_min: 104.4
+  lon_max: 106.6
+  lat_min: -4.35
+  lat_max: -2.65
+
+grid:
+  cell_size_km: 5.0     # ukuran sel grid (km)
+  km_per_degree: 111.0  # 1 derajat ~ 111 km di ekuator
+
+time:
+  start_date: "2015-01-01"
+  end_date: "2024-12-31"
+  train_years: [2015, 2016, 2017, 2018, 2019, 2020, 2021]
+  test_years: [2022, 2023, 2024]
+  horizons: [1, 2, 3]   # prediksi H+1 s.d. H+3
+
+firms:
+  # Dapatkan MAP_KEY gratis (instan): https://firms.modaps.eosdis.nasa.gov/api/map_key/
+  map_key: "ISI_MAP_KEY_ANDA"
+  # Produk arsip: VIIRS_SNPP_SP (2012+). NRT (terbaru): VIIRS_SNPP_NRT.
+  product: "VIIRS_SNPP_SP"
+  confidence_min_label: "nominal"   # VIIRS: low/nominal/high (data: l/n/h)
+  confidence_min_numeric: 30        # MODIS: angka 0-100
+  window_days: 5                    # maks 5 hari/permintaan untuk produk arsip (*_SP)
+  request_delay_sec: 0.4            # jeda retry (limit API ~5000/10 menit)
+  max_workers: 8                    # unduhan paralel (latensi server FIRMS tinggi)
+
+power:
+  # NASA POWER TIDAK butuh API key.
+  parameters: ["T2M_MAX", "T2M", "RH2M", "PRECTOTCORR", "WS2M"]
+  community: "AG"
+  snap_degree: 0.5     # resolusi query POWER; sel 5km berbagi nilai POWER yang sama
+  request_delay_sec: 1.0
+
+features:
+  rain_threshold_mm: 1.0        # ambang "hari hujan"
+  rain_cum_windows: [7, 14, 30] # hujan kumulatif (hari)
+  lag_days: [1, 2, 3]           # lag harian untuk suhu/kelembapan/hujan
+  roll_windows: [3, 7]          # rata-rata bergerak
+
+model:
+  class_weight: true            # tangani imbalance via class weight
+  smote: false                  # true = pakai SMOTE (butuh imbalanced-learn)
+  negative_undersample_ratio: null  # null=pakai semua; mis. 10 = 10 negatif per 1 positif (hanya di data latih)
+  thresholds:
+    red: 0.50     # prob >= -> MERAH (risiko tinggi)
+    yellow: 0.20  # prob >= -> KUNING (waspada); di bawah -> HIJAU (aman)
+
+paths:
+  raw: "data/raw"
+  interim: "data/interim"
+  processed: "data/processed"
+  models: "models"
+  reports: "reports"
